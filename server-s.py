@@ -21,7 +21,7 @@ def recieveFromClient(port):
         sys.stderr.write(f"ERROR: Cannot Bind Host to Port")
         exit(-1)
 
-    s.listen(11)
+    s.listen(9)
     print(f"[*] Listening as {SERVER_HOST}:{SERVER_PORT}")
     not_stopped = True
 
