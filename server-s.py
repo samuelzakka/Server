@@ -15,9 +15,13 @@ def recieveFromClient(port):
     # s = socket.socket()
 
     SEPARATOR = "-serv"
+    try:
+        s.bind((SERVER_HOST, SERVER_PORT))
+    except:
+        sys.stderr.write(f"ERROR: Invalid Port Number {portNum}")
+        exit(-1)
 
-    s.bind((SERVER_HOST, SERVER_PORT))
-    s.listen(10)
+    s.listen(11)
     print(f"[*] Listening as {SERVER_HOST}:{SERVER_PORT}")
     not_stopped = True
 
@@ -70,9 +74,12 @@ if __name__ == '__main__':
     portNum = 0
     if len(sys.argv) == 2:
         portNum = int(sys.argv[1])
+        if portNum >= 0 and portNum <= 65535:
+            while not_stopped:
+                recieveFromClient(port=portNum)
+        else:
+            sys.stderr.write(f"ERROR: Invalid Port Number {portNum}")
+            exit(-1)
     else:
-        sys.stderr.write(f'ERROR: Invalid Arguments: Usage server-s.py <hostname> <port-number>')
+        sys.stderr.write(f'ERROR: Invalid Arguments: Usage server-s.py <port-number>')
         exit(-1)
-    #if sendtoCleint(server_name,port=portNum):
-    while not_stopped:
-        recieveFromClient(port=portNum)
