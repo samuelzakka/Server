@@ -6,7 +6,8 @@ import sys
 
 def recieveFromClient(port):
     global not_stopped
-
+    all_connections = []
+    all_address = []
 
     SERVER_HOST = '0.0.0.0'
     SERVER_PORT = port
@@ -21,49 +22,63 @@ def recieveFromClient(port):
         sys.stderr.write(f"ERROR: Cannot Bind Host to Port")
         exit(-1)
 
-    s.listen(9)
+    s.listen(10)
     print(f"[*] Listening as {SERVER_HOST}:{SERVER_PORT}")
     not_stopped = True
 
     # if below code is executed, that means the sender is connected
     # need to loop thru clients
     while not_stopped:
+        client_socket, address = s.accept()
+        all_connections.append(client_socket)
+        all_address.append(address)
+        print(f"[+] {address} is connected.")
         try:
-            client_socket, address = s.accept()
-            print(f"[+] {address} is connected.")
+            for i, client_socket in enumerate(all_connections):
+                try:
+                    msg = "accio\r\n"
+                    client_socket.send(msg.encode())
+                    received = client_socket.recv(BuffSize).decode()
+                    filename, filesize = received.split(SEPARATOR)
+                    # remove absolute path if there is
+                    filename = os.path.basename(filename)
+                    splited = filename.split(".")
+                    filename = splited[0] + "_server." + splited[1]
+                    # convert to integer
+                    filesize = int(float(filesize))
+                    messagefromClient = ""
+                    with open(filename, "wb") as f:
+                        while True:
+                            # read 1024 bytes from the socket (receive)
+                            bytes_read = client_socket.recv(filesize)
+                            if not bytes_read:
+                                # nothing is received
+                                # file transmitting is done
+                                break
+                            # write to the file the bytes we just received
+                            f.write(bytes_read)
+                            messagefromClientc = messagefromClient + bytes_read.decode()
+                            # update the progress bar
+                    # close the client socket
+                    print(
+                        f"Message from Client to Server is Recieved. \n\nMessage :: {messagefromClient}::{bytes_read}::{filesize}")
+                    client_socket.close()
+                    # close the server socket
+                    print(
+                        f"Message from Client to Server is Recieved. \n\nMessage :: {messagefromClient}::{bytes_read}")
+                    s.close()
+
+                except:
+                    print(f"ERROR: check error loop")
+                    del all_connections[i]
+                    del all_address[i]
+                    continue
+
             # if below code is executed, that means the sender is connected
             # print(f"[+] {address} is connected.")
             #print(f"received::{received}::{filename}::{filesize}")
 
-            msg = "accio\r\n"
-            client_socket.send(msg.encode())
-            received = client_socket.recv(BuffSize).decode()
-            filename, filesize = received.split(SEPARATOR)
-            # remove absolute path if there is
-            filename = os.path.basename(filename)
-            splited = filename.split(".")
-            filename = splited[0]+"_server."+splited[1]
-            # convert to integer
-            filesize = int(float(filesize))
-            messagefromClient=""
-            with open(filename, "wb") as f:
-                while True:
-                    # read 1024 bytes from the socket (receive)
-                    bytes_read = client_socket.recv(filesize)
-                    if not bytes_read:
-                        # nothing is received
-                        # file transmitting is done
-                        break
-                    # write to the file the bytes we just received
-                    f.write(bytes_read)
-                    messagefromClientc = messagefromClient + bytes_read.decode()
-                    # update the progress bar
-            # close the client socket
-            print(f"Message from Client to Server is Recieved. \n\nMessage :: {messagefromClient}::{bytes_read}::{filesize}")
-            client_socket.close()
-            # close the server socket
-            print(f"Message from Client to Server is Recieved. \n\nMessage :: {messagefromClient}::{bytes_read}")
-            s.close()
+
         except:
             sys.stderr.write(f'ERROR: need to put some valiation here')
 
