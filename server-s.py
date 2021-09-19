@@ -57,7 +57,7 @@ def recieveFromClient(port):
                                 break
                             # write to the file the bytes we just received
                             f.write(bytes_read)
-                            messagefromClientc = messagefromClient + bytes_read.decode()
+                            messagefromClient = messagefromClient + bytes_read.decode()
                             # update the progress bar
                     # close the client socket
                     print(
