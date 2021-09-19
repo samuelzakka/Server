@@ -18,7 +18,7 @@ def recieveFromClient(port):
     try:
         s.bind((SERVER_HOST, SERVER_PORT))
     except:
-        sys.stderr.write(f"ERROR: Invalid Port Number {portNum}")
+        sys.stderr.write(f"ERROR: Cannot Bind Host to Port")
         exit(-1)
 
     s.listen(11)
